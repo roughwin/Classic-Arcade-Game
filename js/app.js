@@ -1,13 +1,12 @@
 var boy_area = [1000,1000,83,89];
-var INIT = 0, PLAYING = 1, FAIL = 2, SUCESS = 3;
-// var g_status = PLAYING
+var INIT = 0, PLAYING = 1, FAIL = 2, SUCESS = 3, END = 4;
 // 这是我们的玩家要躲避的敌人 
-var Enemy = function(pos) {
+var Enemy = function(level) {
     // 要应用到每个敌人的实例的变量写在这里
     // 我们已经提供了一个来帮助你实现更多
-    this.x = pos.x;//-100;
-    this.y = pos.y;//65;
-    this.speed = pos.speed
+    this.x = 500 * Math.random(Date.now()) -100;
+    this.y = Math.ceil(Math.random(Date.now())*4 - 1)*84 + 65;
+    this.speed = Math.ceil(Math.random(Date.now) * 3) * (100 + 25 * level);
     // 敌人的图片或者雪碧图，用一个我们提供的工具函数来轻松的加载文件
     this.sprite = 'images/enemy-bug.png';
 };
@@ -18,9 +17,9 @@ Enemy.prototype.update = function(dt) {
     // 你应该给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
     // 都是以同样的速度运行的
     if(this.x > 580) {
-        var pos = randomPosition()
-        this.x = pos.x;
-        this.y = pos.y;
+        // var pos = randomPosition()
+        this.x = -600 * Math.random(Date.now()) -100;
+        this.y = Math.ceil(Math.random(Date.now())*4 - 1)*84 + 65;    
     }       
     this.x += dt * this.speed;
     if(this.x + 100 >= boy_area[0] && this.x <= boy_area[2] && Math.abs(this.y - boy_area[1]) < 20){
@@ -58,6 +57,8 @@ Game.prototype.render = function() {
         case FAIL:
             drawFail();
             break;
+        case END:
+            drawEnd();
         default:
             break;
     }
@@ -65,6 +66,11 @@ Game.prototype.render = function() {
     drawScore.call(this);
     drawHeart.call(this);
     drawColl.call(this);
+    function drawEnd(){
+        ctx.font = "bold 30px x"
+        ctx.fillStyle = 'black';
+        ctx.fillText('GAME OVER~',100,200);
+    }
     function drawFail() {
         ctx.font = "bold 30px x"
         ctx.fillStyle = 'black';
@@ -104,8 +110,7 @@ Game.prototype.update = function(dt) {
             case SUCESS:
                 if(this.pass_time > 2){
                     this.status = PLAYING;
-                    this.level++;
-                    this.start()
+                    this.start();
                 }
                 break;
             case FAIL:
@@ -116,9 +121,21 @@ Game.prototype.update = function(dt) {
                 }
                 break;
             case PLAYING:
-                this.leftTime -= 0;
+                this.leftTime -= dt;
                 if(this.leftTime < 0)
                     this.fail();
+                if(this.coll[0] * this.coll[1] * this.coll[2] > 0){
+                    this.coll[0]--;
+                    this.coll[1]--;
+                    this.coll[2]--;
+                    this.heart++;
+                }
+                break;
+            case END:
+                if(this.pass_time > 3){
+                    game = new Game();
+                    game.start();                    
+                }
                 break;
         }
     }
@@ -128,20 +145,18 @@ Game.prototype.update = function(dt) {
     }
 }
 Game.prototype.sucess = function() {
-    this.levet++;
+    this.level++;
     this.status = SUCESS;
     this.loseCtrl = true;
 }
 Game.prototype.fail = function() {
-    console.log('fail')
-    return
     this.heart--;
     this.pause = true;
     this.status = FAIL;
     if(this.heart < 0){
-        //restart
-        this.level = 1;
-        this.heart = 3;
+        //GAME OVER
+        this.heart = 0;
+        this.status = END;        
     }
 }
 Game.prototype.start = function() {
@@ -149,8 +164,8 @@ Game.prototype.start = function() {
     this.loseCtrl = false;
     this.leftTime = 20;
     allEnemies = [];
-    for(var i = 0; i < 7+this.level; i++) {
-        allEnemies[i] = new Enemy(randomPosition())
+    for(var i = 0; i < 6; i++) {
+        allEnemies[i] = new Enemy(this.level)
     }
     coll = new Collectible();
     player = new Player({
@@ -170,7 +185,6 @@ var Collectible = function() {
     this.y = 60 + 84 * Math.ceil(Math.random(Date.now())*3);
     this.type = Math.floor(Math.random(Date.now())*3);
     this.sprite = 'images/'+CollectibleSprite[this.type];
-    console.log(this.type)
 }
 Collectible.prototype.update = function(dt) {
     if(!this.disp)
@@ -258,16 +272,9 @@ function randomPosition(){
 // 现在实例化你的所有对象
 var game = new Game();
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
-var allEnemies = []
-for(var i = 0; i < 7; i++) {
-    allEnemies[i] = new Enemy(randomPosition())
-}
-var coll = new Collectible()
 // 把玩家对象放进一个叫 player 的变量里面
-var player = new Player({
-    x: 200,
-    y: 410
-})
+var allEnemies, player, coll;
+game.start()
 // 这段代码监听游戏玩家的键盘点击事件并且代表将按键的关键数字送到 Play.handleInput()
 // 方法里面。你不需要再更改这段代码了。
 document.addEventListener('keyup', function(e) {

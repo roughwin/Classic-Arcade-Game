@@ -64,10 +64,17 @@ Game.prototype.render = function() {
     drawTime.call(this);
     drawScore.call(this);
     drawHeart.call(this);
+    drawColl.call(this);
     function drawFail() {
         ctx.font = "bold 30px x"
         ctx.fillStyle = 'black';
         ctx.fillText('FAIL',100,200);
+    }
+    // [].slice
+    function drawColl() {
+        ctx.font = "bold 20px x"
+        ctx.fillStyle = 'black';
+        ctx.fillText(this.coll.slice(0,3),300,20);
     }
     function drawTime() {
         ctx.font = "bold 20px x"
@@ -145,7 +152,7 @@ Game.prototype.start = function() {
     for(var i = 0; i < 7+this.level; i++) {
         allEnemies[i] = new Enemy(randomPosition())
     }
-    // 把玩家对象放进一个叫 player 的变量里面
+    coll = new Collectible();
     player = new Player({
         x: 200,
         y: 410
@@ -157,13 +164,13 @@ var CollectibleSprite = [
     'Gem Orange.png'
 ]
 var BLUE = 0, GREEN = 1, ORANGE = 2;
-var Collectible = function(pos) {
+var Collectible = function() {
     this.disp = true;
-    this.x = pos.x + 100;
-    this.y = pos.y + 84*2;
-    this.type = BLUE;
+    this.x = 30 + 100*Math.ceil(Math.random(Date.now())*4);
+    this.y = 60 + 84 * Math.ceil(Math.random(Date.now())*3);
+    this.type = Math.floor(Math.random(Date.now())*3);
     this.sprite = 'images/'+CollectibleSprite[this.type];
-    console.log(this.x + ' '+ this.y)
+    console.log(this.type)
 }
 Collectible.prototype.update = function(dt) {
     if(!this.disp)
@@ -255,7 +262,7 @@ var allEnemies = []
 for(var i = 0; i < 7; i++) {
     allEnemies[i] = new Enemy(randomPosition())
 }
-var coll = new Collectible({x:30, y: 60})
+var coll = new Collectible()
 // 把玩家对象放进一个叫 player 的变量里面
 var player = new Player({
     x: 200,

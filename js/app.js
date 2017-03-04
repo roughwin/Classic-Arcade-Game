@@ -25,7 +25,6 @@ Enemy.prototype.update = function(dt) {
     this.x += dt * this.speed;
     if(this.x + 100 >= boy_area[0] && this.x <= boy_area[2] && Math.abs(this.y - boy_area[1]) < 20){
         game.fail();
-        // game.status = FAIL;
     }
     this.render();
 };
@@ -49,6 +48,7 @@ var Game = function() {
     this.leftTime = 20;
     this.heart = 3;
     this.level = 1;
+    this.coll = [0,0,0,0,0];
 }
 Game.prototype.render = function() {
     switch(this.status){
@@ -109,7 +109,7 @@ Game.prototype.update = function(dt) {
                 }
                 break;
             case PLAYING:
-                this.leftTime -= dt;
+                this.leftTime -= 0;
                 if(this.leftTime < 0)
                     this.fail();
                 break;
@@ -126,6 +126,8 @@ Game.prototype.sucess = function() {
     this.loseCtrl = true;
 }
 Game.prototype.fail = function() {
+    console.log('fail')
+    return
     this.heart--;
     this.pause = true;
     this.status = FAIL;
@@ -149,16 +151,47 @@ Game.prototype.start = function() {
         y: 410
     });
 }
+var CollectibleSprite = [
+    'Gem Blue.png',
+    'Gem Green.png',
+    'Gem Orange.png'
+]
+var BLUE = 0, GREEN = 1, ORANGE = 2;
+var Collectible = function(pos) {
+    this.disp = true;
+    this.x = pos.x + 100;
+    this.y = pos.y + 84*2;
+    this.type = BLUE;
+    this.sprite = 'images/'+CollectibleSprite[this.type];
+    console.log(this.x + ' '+ this.y)
+}
+Collectible.prototype.update = function(dt) {
+    if(!this.disp)
+        return;
+    if(this.x + 15 >= boy_area[0] && this.x +15 <= boy_area[2] && Math.abs(this.y - boy_area[1] -80) < 30){
+        this.eaten()
+    }
+}
+Collectible.prototype.render = function() {
+    if(this.disp){
+        var img = Resources.get(this.sprite);
+        // ctx.fillRect(this.x,this.y,30,50)
+        ctx.drawImage(img, 0, 0, img.width, img.height, this.x, this.y, 30, 50);
+    }
+}
+Collectible.prototype.eaten = function() {
+    this.disp = false;
+    game.coll[this.type]++;
+}
 // 现在实现你自己的玩家类
 // 这个类需要一个 update() 函数， render() 函数和一个 handleInput()函数
 var Player = function(pos) {
     this.sprite = 'images/char-boy.png';
     this.x = pos.x;
     this.y = pos.y;
-    boy_area[0] = 17 + this.x
-    boy_area[2] = 83 + this.x
-    boy_area[1] = 10 + this.y
-
+    boy_area[0] = 17 + this.x;
+    boy_area[2] = 83 + this.x;
+    boy_area[1] = 10 + this.y;
     //display
     this.disp = true;
     this.passtime = 0;
@@ -166,8 +199,10 @@ var Player = function(pos) {
 Player.prototype.update = function(dt) {
 }
 Player.prototype.render = function() {
-    if(this.disp)
+    if(this.disp){
+        // ctx.fillRect(this.x,this.y,Resources.get(this.sprite).width,Resources.get(this.sprite).height)
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    }
 }
 Player.prototype.handleInput = function(keys) {
     if(game.pause||game.loseCtrl)
@@ -220,6 +255,7 @@ var allEnemies = []
 for(var i = 0; i < 7; i++) {
     allEnemies[i] = new Enemy(randomPosition())
 }
+var coll = new Collectible({x:30, y: 60})
 // 把玩家对象放进一个叫 player 的变量里面
 var player = new Player({
     x: 200,

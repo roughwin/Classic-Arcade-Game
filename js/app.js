@@ -1,5 +1,6 @@
-var boy_area = [1000,1000,83,89]
-var g_status = 'playing'
+var boy_area = [1000,1000,83,89];
+var INIT = 0, PLAYING = 1, FAIL = 2, SUCESS = 3;
+// var g_status = PLAYING
 // 这是我们的玩家要躲避的敌人 
 var Enemy = function(pos) {
     // 要应用到每个敌人的实例的变量写在这里
@@ -23,7 +24,8 @@ Enemy.prototype.update = function(dt) {
     }       
     this.x += dt * this.speed;
     if(this.x + 100 >= boy_area[0] && this.x <= boy_area[2] && Math.abs(this.y - boy_area[1]) < 20){
-        fail();
+        game.fail();
+        // game.status = FAIL;
     }
     this.render();
 };
@@ -33,6 +35,97 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+/**
+ * Game类，负责管理游戏的 关卡、分数、时间、生命、经验、失败、成功
+ * 生成游戏各种状态下的画面
+ */
+var Game = function() {
+    this.pause = false;
+    this.pass_time = 0;
+    this.status = PLAYING;
+    this.old_status = this.status;
+    this.scroe = 0;
+    this.time = 0;
+    this.heart = 3;
+    this.level = 1;
+}
+Game.prototype.render = function() {
+    switch(this.status){
+        case SUCESS:
+            drawSucess();
+            break;
+        case FAIL:
+            drawFail();
+            break;
+    }
+    function drawFail() {
+        ctx.font = "bold 30px h"
+        ctx.fillStyle = 'black';
+        ctx.fillText('FAIL',100,200);
+    }
+    function drawTime() {
+
+    }
+    function drawScore() {
+
+    }
+    function drawHeart() {
+
+    }
+    function drawSucess() {
+        ctx.font = "bold 30px h"
+        ctx.fillStyle = 'black';
+        ctx.fillText('SUCESS',100,200);
+    }
+}
+Game.prototype.update = function(dt) {
+    if(this.old_status == this.status){
+        this.pass_time += dt;
+        switch(this.status){
+            case SUCESS:
+                if(this.pass_time > 2){
+                    this.status = PLAYING;
+                    this.level++;
+                    this.start()
+                }
+                break;
+            case FAIL:
+                if(this.pass_time > 0.8){
+                    this.pause = false;
+                    this.status = PLAYING;
+                    this.start();
+                }
+                break;
+        }
+    }
+    else{
+        this.pass_time = 0;
+        this.old_status = this.status;
+    }
+}
+Game.prototype.sucess = function() {
+    this.levet++;
+    this.status = SUCESS;
+}
+Game.prototype.fail = function() {
+    this.heart--;
+    this.pause = true;
+    this.status = FAIL;
+    if(this.heart < 0){
+        //exit
+    }
+}
+Game.prototype.start = function() {
+    allEnemies = []
+    for(var i = 0; i < 7; i++) {
+        allEnemies[i] = new Enemy(randomPosition())
+    }
+    // 把玩家对象放进一个叫 player 的变量里面
+    player = new Player({
+        x: 200,
+        y: 410
+    })
+}
 // 现在实现你自己的玩家类
 // 这个类需要一个 update() 函数， render() 函数和一个 handleInput()函数
 var Player = function(pos) {
@@ -42,15 +135,20 @@ var Player = function(pos) {
     boy_area[0] = 17 + this.x
     boy_area[2] = 83 + this.x
     boy_area[1] = 10 + this.y
+
+    //display
+    this.disp = true;
+    this.passtime = 0;
 }
 Player.prototype.update = function(dt) {
-    
 }
 Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    if(this.disp)
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 Player.prototype.handleInput = function(keys) {
-    // console.log(keys);
+    if(game.pause)
+        return
     switch(keys) {
         case 'left':
             this.x = this.x < 100 ? this.x : this.x - 100;
@@ -60,6 +158,10 @@ Player.prototype.handleInput = function(keys) {
             break;
         case 'up':
             this.y = this.y < 0 ? this.y : this.y - 84;
+            if(this.y < 20){
+                game.sucess();
+                console.log('sucess')
+            }
             break;
         case 'down':
             this.y = this.y > 400 ? this.y : this.y + 84;
@@ -86,18 +188,10 @@ function randomPosition(){
         speed: s
     }
 }
-/**
- * @description: 处理游戏失败
- */
-function fail() {
-    console.log('hit')
-    player = new Player({
-        x: 200,
-        y: 410
-    })
-}
+
 
 // 现在实例化你的所有对象
+var game = new Game();
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
 var allEnemies = []
 for(var i = 0; i < 7; i++) {

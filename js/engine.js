@@ -63,7 +63,7 @@ var Engine = (function(global) {
      * 比如你的角色死的时候），你可能需要在这里调用一个额外的函数。现在我们已经把这里
      * 注释了，你可以在这里实现，也可以在 app.js 对应的角色类里面实现。
      */
-    function update(dt) {
+    function update(dt) {        
         updateEntities(dt);
         // checkCollisions();
     }
@@ -73,12 +73,15 @@ var Engine = (function(global) {
      * 这些更新函数应该只聚焦于更新和对象相关的数据/属性。把重绘的工作交给 render 函数。
      */
     function updateEntities(dt) {
+        game.update(dt);
+        if(game.pause){
+            return;
+        }
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        player.update(dt);        
     }
-
     /* 这个函数做了一些游戏的初始渲染，然后调用 renderEntities 函数。记住，这个函数
      * 在每个游戏的时间间隙都会被调用一次（或者说游戏引擎的每个循环），因为这就是游戏
      * 怎么工作的，他们就像是那种每一页上都画着不同画儿的书，快速翻动的时候就会出现是
@@ -107,11 +110,11 @@ var Engine = (function(global) {
                  */
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
-        }
-
+        }        
         renderEntities();
+         
     }
-
+    
     /* 这个函数会在每个时间间隙被 render 函数调用。他的目的是分别调用你在 enemy 和 player
      * 对象中定义的 render 方法。
      */
@@ -122,6 +125,8 @@ var Engine = (function(global) {
         });
 
         player.render();
+        game.render();
+
     }
 
     /* 这个函数现在没干任何事，但是这会是一个好地方让你来处理游戏重置的逻辑。可能是一个

@@ -1,10 +1,12 @@
 var boy_area = [1000,1000,83,89]
+var g_status = 'playing'
 // 这是我们的玩家要躲避的敌人 
 var Enemy = function(pos) {
     // 要应用到每个敌人的实例的变量写在这里
     // 我们已经提供了一个来帮助你实现更多
     this.x = pos.x;//-100;
     this.y = pos.y;//65;
+    this.speed = pos.speed
     // 敌人的图片或者雪碧图，用一个我们提供的工具函数来轻松的加载文件
     this.sprite = 'images/enemy-bug.png';
 };
@@ -15,11 +17,14 @@ Enemy.prototype.update = function(dt) {
     // 你应该给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
     // 都是以同样的速度运行的
     if(this.x > 580) {
-        this.x = -100;
+        var pos = randomPosition()
+        this.x = pos.x;
+        this.y = pos.y;
     }       
-    this.x += dt * 200;
-    if(this.x + 100 >= boy_area[0] && this.x <= boy_area[2] && Math.abs(this.y - boy_area[1]) < 20)
-        console.log('hit')
+    this.x += dt * this.speed;
+    if(this.x + 100 >= boy_area[0] && this.x <= boy_area[2] && Math.abs(this.y - boy_area[1]) < 20){
+        fail();
+    }
     this.render();
 };
 
@@ -34,11 +39,12 @@ var Player = function(pos) {
     this.sprite = 'images/char-boy.png';
     this.x = pos.x;
     this.y = pos.y;
-}
-Player.prototype.update = function(dt) {
     boy_area[0] = 17 + this.x
     boy_area[2] = 83 + this.x
     boy_area[1] = 10 + this.y
+}
+Player.prototype.update = function(dt) {
+    
 }
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -61,13 +67,43 @@ Player.prototype.handleInput = function(keys) {
         default:
             break;
     }
+    boy_area[0] = 17 + this.x
+    boy_area[2] = 83 + this.x
+    boy_area[1] = 10 + this.y
 }
+/**
+ * @description: 随机生成一个初始位置
+ * @returns: 返回一个位置对象 {x: ?,y: ?}
+ */
+function randomPosition(){
+    var y = Math.ceil(Math.random(Date.now())*4 - 1)*84 + 65
+    var x = -800 * Math.random(Date.now()) -100
+    var s = 100 * Math.ceil(Math.random(Date.now) * 3)
+    // console.log(x)
+    return {
+        x: x,
+        y: y,
+        speed: s
+    }
+}
+/**
+ * @description: 处理游戏失败
+ */
+function fail() {
+    console.log('hit')
+    player = new Player({
+        x: 200,
+        y: 410
+    })
+}
+
 // 现在实例化你的所有对象
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
-
-var allEnemies = [new Enemy({x:-100, y:65})]
+var allEnemies = []
+for(var i = 0; i < 7; i++) {
+    allEnemies[i] = new Enemy(randomPosition())
+}
 // 把玩家对象放进一个叫 player 的变量里面
-
 var player = new Player({
     x: 200,
     y: 410

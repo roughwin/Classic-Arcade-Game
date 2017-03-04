@@ -125,6 +125,8 @@ var Engine = (function(global) {
         });
 
         player.render();
+
+        ctx.clearRect(0,0,800,40)
         game.render();
 
     }

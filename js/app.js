@@ -41,11 +41,12 @@ Enemy.prototype.render = function() {
  */
 var Game = function() {
     this.pause = false;
+    this.loseCtrl = false;
     this.pass_time = 0;
     this.status = PLAYING;
     this.old_status = this.status;
     this.scroe = 0;
-    this.time = 0;
+    this.leftTime = 20;
     this.heart = 3;
     this.level = 1;
 }
@@ -57,20 +58,31 @@ Game.prototype.render = function() {
         case FAIL:
             drawFail();
             break;
+        default:
+            break;
     }
+    drawTime.call(this);
+    drawScore.call(this);
+    drawHeart.call(this);
     function drawFail() {
-        ctx.font = "bold 30px h"
+        ctx.font = "bold 30px x"
         ctx.fillStyle = 'black';
         ctx.fillText('FAIL',100,200);
     }
     function drawTime() {
-
+        ctx.font = "bold 20px x"
+        ctx.fillStyle = 'black';
+        ctx.fillText(Math.ceil(this.leftTime)+'s',0,20);
     }
     function drawScore() {
-
+        ctx.font = "bold 20px x"
+        ctx.fillStyle = 'black';
+        ctx.fillText('Level: '+Math.ceil(this.level),60,20);
     }
     function drawHeart() {
-
+        ctx.font = "bold 20px x"
+        ctx.fillStyle = 'black';
+        ctx.fillText('L: '+Math.ceil(this.heart),200,20);
     }
     function drawSucess() {
         ctx.font = "bold 30px h"
@@ -96,6 +108,11 @@ Game.prototype.update = function(dt) {
                     this.start();
                 }
                 break;
+            case PLAYING:
+                this.leftTime -= dt;
+                if(this.leftTime < 0)
+                    this.fail();
+                break;
         }
     }
     else{
@@ -106,25 +123,31 @@ Game.prototype.update = function(dt) {
 Game.prototype.sucess = function() {
     this.levet++;
     this.status = SUCESS;
+    this.loseCtrl = true;
 }
 Game.prototype.fail = function() {
     this.heart--;
     this.pause = true;
     this.status = FAIL;
     if(this.heart < 0){
-        //exit
+        //restart
+        this.level = 1;
+        this.heart = 3;
     }
 }
 Game.prototype.start = function() {
-    allEnemies = []
-    for(var i = 0; i < 7; i++) {
+    this.pause = false;
+    this.loseCtrl = false;
+    this.leftTime = 20;
+    allEnemies = [];
+    for(var i = 0; i < 7+this.level; i++) {
         allEnemies[i] = new Enemy(randomPosition())
     }
     // 把玩家对象放进一个叫 player 的变量里面
     player = new Player({
         x: 200,
         y: 410
-    })
+    });
 }
 // 现在实现你自己的玩家类
 // 这个类需要一个 update() 函数， render() 函数和一个 handleInput()函数
@@ -147,7 +170,7 @@ Player.prototype.render = function() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 Player.prototype.handleInput = function(keys) {
-    if(game.pause)
+    if(game.pause||game.loseCtrl)
         return
     switch(keys) {
         case 'left':

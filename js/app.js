@@ -1,4 +1,6 @@
+//用于碰撞检测的全局变量
 var boy_area = [1000,1000,83,89];
+//表征游戏状态的常量
 var INIT = 0, PLAYING = 1, FAIL = 2, SUCESS = 3, END = 4;
 // 这是我们的玩家要躲避的敌人 
 var Enemy = function(level) {
@@ -17,15 +19,15 @@ Enemy.prototype.update = function(dt) {
     // 你应该给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
     // 都是以同样的速度运行的
     if(this.x > 580) {
-        // var pos = randomPosition()
+        //虫子循环加载
         this.x = -600 * Math.random(Date.now()) -100;
         this.y = Math.ceil(Math.random(Date.now())*4 - 1)*84 + 65;    
     }       
     this.x += dt * this.speed;
+    //碰撞检测
     if(this.x + 100 >= boy_area[0] && this.x <= boy_area[2] && Math.abs(this.y - boy_area[1]) < 20){
         game.fail();
     }
-    this.render();
 };
 
 // 此为游戏必须的函数，用来在屏幕上画出敌人，
@@ -49,6 +51,9 @@ var Game = function() {
     this.level = 1;
     this.coll = [0,0,0,0,0];
 }
+/**
+ * 绘制游戏得分、生命、时间、Level信息等
+ */
 Game.prototype.render = function() {
     switch(this.status){
         case SUCESS:
@@ -76,7 +81,6 @@ Game.prototype.render = function() {
         ctx.fillStyle = 'black';
         ctx.fillText('FAIL',100,200);
     }
-    // [].slice
     function drawColl() {
         ctx.font = "bold 20px x"
         ctx.fillStyle = 'black';
@@ -103,6 +107,9 @@ Game.prototype.render = function() {
         ctx.fillText('SUCESS',100,200);
     }
 }
+/**
+ * 控制游戏状态
+ */
 Game.prototype.update = function(dt) {
     if(this.old_status == this.status){
         this.pass_time += dt;
@@ -144,11 +151,20 @@ Game.prototype.update = function(dt) {
         this.old_status = this.status;
     }
 }
+/**
+ * 闯关成功，进入下一局
+ * 显示 SUCESS信息2秒
+ * loseCtrl 用于屏蔽用户输入
+ */
 Game.prototype.sucess = function() {
     this.level++;
     this.status = SUCESS;
     this.loseCtrl = true;
 }
+/**
+ * 闯关失败，失去一次生命
+ * 显示 FAIL 信息0.8秒后，重新开始游戏
+ */
 Game.prototype.fail = function() {
     this.heart--;
     this.pause = true;
@@ -159,6 +175,12 @@ Game.prototype.fail = function() {
         this.status = END;        
     }
 }
+/**
+ * 开始游戏
+ * 初始化游戏角色
+ * 虫子、水晶位置随机指定，player进入初始位置。
+ * 虫子数量初始化为6个
+ */
 Game.prototype.start = function() {
     this.pause = false;
     this.loseCtrl = false;
@@ -178,7 +200,11 @@ var CollectibleSprite = [
     'Gem Green.png',
     'Gem Orange.png'
 ]
+
 var BLUE = 0, GREEN = 1, ORANGE = 2;
+/**
+ * 水晶Class
+ */
 var Collectible = function() {
     this.disp = true;
     this.x = 30 + 100*Math.ceil(Math.random(Date.now())*4);
@@ -187,8 +213,10 @@ var Collectible = function() {
     this.sprite = 'images/'+CollectibleSprite[this.type];
 }
 Collectible.prototype.update = function(dt) {
+    //被吃掉后不再显示
     if(!this.disp)
         return;
+    //被吃掉检测
     if(this.x + 15 >= boy_area[0] && this.x +15 <= boy_area[2] && Math.abs(this.y - boy_area[1] -80) < 30){
         this.eaten()
     }
@@ -196,7 +224,6 @@ Collectible.prototype.update = function(dt) {
 Collectible.prototype.render = function() {
     if(this.disp){
         var img = Resources.get(this.sprite);
-        // ctx.fillRect(this.x,this.y,30,50)
         ctx.drawImage(img, 0, 0, img.width, img.height, this.x, this.y, 30, 50);
     }
 }
@@ -252,21 +279,7 @@ Player.prototype.handleInput = function(keys) {
     boy_area[2] = 83 + this.x
     boy_area[1] = 10 + this.y
 }
-/**
- * @description: 随机生成一个初始位置
- * @returns: 返回一个位置对象 {x: ?,y: ?}
- */
-function randomPosition(){
-    var y = Math.ceil(Math.random(Date.now())*4 - 1)*84 + 65
-    var x = -800 * Math.random(Date.now()) -100
-    var s = 100 * Math.ceil(Math.random(Date.now) * 3)
-    // console.log(x)
-    return {
-        x: x,
-        y: y,
-        speed: s
-    }
-}
+
 
 
 // 现在实例化你的所有对象

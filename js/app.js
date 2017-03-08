@@ -72,14 +72,14 @@ Game.prototype.render = function() {
     drawHeart.call(this);
     drawColl.call(this);
     function drawEnd(){
-        ctx.font = "bold 30px x"
-        ctx.fillStyle = 'black';
-        ctx.fillText('GAME OVER~',100,200);
+        ctx.font = "bold 50px x"
+        ctx.fillStyle = 'red';
+        ctx.fillText('GAME OVER~',110,300);
     }
     function drawFail() {
-        ctx.font = "bold 30px x"
-        ctx.fillStyle = 'black';
-        ctx.fillText('FAIL',100,200);
+        ctx.font = "bold 38px x"
+        ctx.fillStyle = 'red';
+        ctx.fillText('FAIL',210,300);
     }
     function drawColl() {
         ctx.font = "bold 20px x"
@@ -102,9 +102,9 @@ Game.prototype.render = function() {
         ctx.fillText('L: '+Math.ceil(this.heart),200,20);
     }
     function drawSucess() {
-        ctx.font = "bold 30px h"
-        ctx.fillStyle = 'black';
-        ctx.fillText('SUCCESS',100,200);
+        ctx.font = "bold 50px h"
+        ctx.fillStyle = 'gold';
+        ctx.fillText('SUCCESS',120,300);
     }
 }
 /**

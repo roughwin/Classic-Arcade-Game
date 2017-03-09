@@ -9,7 +9,8 @@
  * 这个引擎是可以通过 Engine 变量公开访问的，而且它也让 canvas context (ctx) 对象也可以
  * 公开访问，以此使编写app.js的时候更加容易
  */
-
+/* exported Engine */
+/* global Resources, allEnemies, coll, game, player */
 var Engine = (function(global) {
     /* 实现定义我们会在这个作用于用到的变量
      * 创建 canvas 元素，拿到对应的 2D 上下文

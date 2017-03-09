@@ -1,5 +1,8 @@
+/*global ctx, Resources*/
+
 //用于碰撞检测的全局变量
 var boy_area = [1000,1000,83,89];
+/* exported INIT, PLAYING, FAIL, SUCESS, END */
 //表征游戏状态的常量
 var INIT = 0, PLAYING = 1, FAIL = 2, SUCESS = 3, END = 4;
 // 这是我们的玩家要躲避的敌人 
@@ -73,37 +76,37 @@ Game.prototype.render = function() {
     drawHeart.call(this);
     drawColl.call(this);
     function drawEnd(){
-        ctx.font = "bold 50px x";
+        ctx.font = 'bold 50px x';
         ctx.fillStyle = 'red';
         ctx.fillText('GAME OVER~',110,300);
     }
     function drawFail() {
-        ctx.font = "bold 38px x";
+        ctx.font = 'bold 38px x';
         ctx.fillStyle = 'red';
         ctx.fillText('FAIL',210,300);
     }
     function drawColl() {
-        ctx.font = "bold 20px x";
+        ctx.font = 'bold 20px x';
         ctx.fillStyle = 'black';
         ctx.fillText(this.coll.slice(0,3),300,20);
     }
     function drawTime() {
-        ctx.font = "bold 20px x";
+        ctx.font = 'bold 20px x';
         ctx.fillStyle = 'black';
         ctx.fillText(Math.ceil(this.leftTime)+'s',0,20);
     }
     function drawScore() {
-        ctx.font = "bold 20px x";
+        ctx.font = 'bold 20px x';
         ctx.fillStyle = 'black';
         ctx.fillText('Level: '+Math.ceil(this.level),60,20);
     }
     function drawHeart() {
-        ctx.font = "bold 20px x";
+        ctx.font = 'bold 20px x';
         ctx.fillStyle = 'black';
         ctx.fillText('L: '+Math.ceil(this.heart),200,20);
     }
     function drawSucess() {
-        ctx.font = "bold 50px h";
+        ctx.font = 'bold 50px h';
         ctx.fillStyle = 'gold';
         ctx.fillText('SUCCESS',120,300);
     }
@@ -201,7 +204,7 @@ var CollectibleSprite = [
     'Gem Green.png',
     'Gem Orange.png'
 ];
-
+/* exported BLUE, GREEN, ORANGE */
 var BLUE = 0, GREEN = 1, ORANGE = 2;
 /**
  * 水晶Class
@@ -219,7 +222,7 @@ Collectible.prototype.update = function(dt) {
         return;
     //被吃掉检测
     if(this.x + 15 >= boy_area[0] && this.x +15 <= boy_area[2] && Math.abs(this.y - boy_area[1] -80) < 30){
-        this.eaten()
+        this.eaten();
     }
 };
 Collectible.prototype.render = function() {
@@ -282,7 +285,7 @@ Player.prototype.handleInput = function(keys) {
 };
 
 
-
+/* exported allEnemies,player, coll */
 // 现在实例化你的所有对象
 var game = new Game();
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面

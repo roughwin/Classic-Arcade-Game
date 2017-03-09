@@ -81,7 +81,7 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update(dt);
-        coll.update(dt)   
+        coll.update(dt);
     }
     /* 这个函数做了一些游戏的初始渲染，然后调用 renderEntities 函数。记住，这个函数
      * 在每个游戏的时间间隙都会被调用一次（或者说游戏引擎的每个循环），因为这就是游戏
@@ -120,7 +120,7 @@ var Engine = (function(global) {
      * 对象中定义的 render 方法。
      */
     function renderEntities() {
-        coll.render()
+        coll.render();
 
         /* 遍历在 allEnemies 数组中存放的作于对象然后调用你事先定义的 render 函数 */
         allEnemies.forEach(function(enemy) {
@@ -129,7 +129,7 @@ var Engine = (function(global) {
 
         player.render();
 
-        ctx.clearRect(0,0,800,40)
+        ctx.clearRect(0,0,800,40);
         game.render();
 
     }

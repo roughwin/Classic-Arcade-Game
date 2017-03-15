@@ -191,7 +191,7 @@ Game.prototype.start = function() {
     this.leftTime = 20;
     allEnemies = [];
     for(var i = 0; i < 6; i++) {
-        allEnemies[i] = new Enemy(this.level)
+        allEnemies[i] = new Enemy(this.level);
     }
     coll = new Collectible();
     player = new Player({
